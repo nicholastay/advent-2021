@@ -2,6 +2,21 @@ use std::env;
 use std::fs;
 use std::collections::VecDeque;
 
+type Board = [[i32; 5]; 5];
+
+fn final_score(board: Board, picked: &Vec<i32>) -> i32 {
+    let mut unmarked_sum = 0;
+    for row in board {
+	for val in row {
+	    if !picked.contains(&val) {
+		unmarked_sum += val;
+	    }
+	}
+    }
+
+    picked.last().unwrap() * unmarked_sum
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -20,7 +35,6 @@ fn main() {
     //println!("{:#?}", numbers);
 
     // Parse bingo boards
-    type Board = [[i32; 5]; 5];
     let mut boards: Vec<Board> = Vec::new();
 
     while lines.next().is_some() {
@@ -55,10 +69,16 @@ fn main() {
     }
 
     // Keep going until there is a winner
-    let mut winner: Option<Board> = None;
-    while !numbers.is_empty() {
+    // We then keep going after that for part 2.
+    let mut first_winner: Option<Board> = None;
+    let mut first_score: i32 = 0;
+    let mut last_winner: Option<Board> = None;
+    let mut last_score: i32 = 0;
+    loop {
+	// println!("\n\nPicked: {:?}", picked);
 	// Check all boards, if no winner, then pick another number
-	for board in &boards {
+	let mut found_boards: Vec<Board> = Vec::new();
+	for board in boards.iter() {
 	    // Check rows
 	    let mut found: bool = true;
 	    for row in board {
@@ -72,8 +92,16 @@ fn main() {
 	    }
 
 	    if found {
-		winner = Some(*board);
-		break;
+		let score: i32 = final_score(*board, &picked);
+		// println!("Process winner board: {:?} ({})", *board, score);
+		if first_winner.is_none() {
+		    first_winner = Some(*board);
+		    first_score = score;
+		}
+		last_winner = Some(*board);
+		last_score = score;
+		found_boards.push(*board);
+		continue;
 	    }
 
 	    // Check columns
@@ -90,40 +118,54 @@ fn main() {
 	    }
 
 	    if found {
-		winner = Some(*board);
-		break;
+		let score: i32 = final_score(*board, &picked);
+		// println!("Process winner board: {:?} ({})", *board, score);
+		if first_winner.is_none() {
+		    first_winner = Some(*board);
+		    first_score = score;
+		}
+		last_winner = Some(*board);
+		last_score = score;
+		found_boards.push(*board);
+		continue;
 	    }
 	}
 
-	if winner.is_some() {
+	boards.retain(|&x| !found_boards.contains(&x));
+	if boards.is_empty() {
+	    break;
+	}
+
+	// Pick another
+	let next_num = numbers.pop_front();
+	if next_num.is_none() {
 	    break;
 	} else {
-	    // Pick another
-	    picked.push(numbers.pop_front().unwrap());
+	    picked.push(next_num.unwrap());
 	}
     }
 
-    if winner.is_none() {
+    if first_winner.is_none() {
 	println!("Ran out of numbers, no winner!");
 	std::process::exit(1);
     }
 
-    println!("Winning board:");
-    println!("{:#?}", winner.unwrap());
-    println!("");
+    println!("-- Part 1 --");
+    println!("First winning board:");
+    println!("{:#?}", first_winner.unwrap());
     
     // Calculate winning score
-    let just_picked = picked.last().unwrap();
-    println!("Last number called: {}", just_picked);
-    let mut unmarked_sum = 0;
-    for row in winner.unwrap() {
-	for val in row {
-	    if !picked.contains(&val) {
-		unmarked_sum += val;
-	    }
-	}
-    }
-    println!("Sum of unmarked: {}", unmarked_sum);
+    // println!("Sum of unmarked: {}", unmarked_sum);
+    println!("Final score: {}", first_score);
 
-    println!("Final score: {}", just_picked * unmarked_sum);
+    println!("");
+    println!("");
+    println!("-- Part 2 --");
+
+    println!("Last winning board:");
+    println!("{:#?}", last_winner.unwrap());
+    
+    // Calculate winning score
+    // println!("Sum of unmarked: {}", unmarked_sum);
+    println!("Final score: {}", last_score);
 }
