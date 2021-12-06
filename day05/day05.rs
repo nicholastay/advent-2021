@@ -29,22 +29,26 @@ fn main() {
     let file = fs::read(&args[1]).expect("Could not read input file given.");
     let data = String::from_utf8_lossy(&file);
 
-    let lines = data.lines();
+    let mut p1_matrix: Matrix = [[PointState::Unmarked; MATRIX_SIZE]; MATRIX_SIZE];
+    let mut p1_count: i32 = 0;
 
-    let mut matrix: Matrix = [[PointState::Unmarked; MATRIX_SIZE]; MATRIX_SIZE];
-    let mut count: i32 = 0;
-    for line in lines {
+    let mut p2_matrix: Matrix = [[PointState::Unmarked; MATRIX_SIZE]; MATRIX_SIZE];
+    let mut p2_count: i32 = 0;
+
+    for line in data.lines() {
 	let mut splits = line.split(" -> ");
 
 	let from: Point = str_to_point(splits.next().unwrap());
 	let to: Point = str_to_point(splits.next().unwrap());
 
 	println!("Marking from {:?} to {:?}", from, to);
-	mark_line(&mut matrix, &mut count, &from, &to);
+	mark_line(true, &mut p1_matrix, &mut p1_count, &from, &to);
+	mark_line(false, &mut p2_matrix, &mut p2_count, &from, &to);
     }
 
     println!("");
-    println!("Final count: {}", count);
+    println!("Part 1 final count: {}", p1_count);
+    println!("Part 2 final count: {}", p2_count);
 }
 
 fn str_to_point(coords: &str) -> Point {
@@ -55,17 +59,17 @@ fn str_to_point(coords: &str) -> Point {
     }
 }
 
-fn mark_line(mat: &mut Matrix, count: &mut i32, from: &Point, to: &Point) {
-    // Only support horizontal and vertical lines for now.
-    if from.x != to.x && from.y != to.y {
-	println!("WARN: Non horizontal and non vertical lines are not supported yet. Skipping {:?} -> {:?}.", from, to);
+fn mark_line(part_one: bool, mat: &mut Matrix, count: &mut i32, from: &Point, to: &Point) {
+    // Only support horizontal and vertical lines for Part 1.
+    if part_one && from.x != to.x && from.y != to.y {
+	//println!("WARN: Non horizontal and non vertical lines are not supported in Part 1. Skipping {:?} -> {:?}.", from, to);
 	return
     }
 
     let mut point: Point = *from;
 
     loop {
-	// println!("-- Marking {:?}", point);
+	//println!("-- Marking {:?}", point);
 	let mat_state: &mut PointState = &mut mat[point.x][point.y];
 	if *mat_state == PointState::Unmarked {
 	    // Now it has one line
@@ -88,11 +92,29 @@ fn mark_line(mat: &mut Matrix, count: &mut i32, from: &Point, to: &Point) {
 	    } else {
 		point.y += 1;
 	    }
-	} else {
+	} else if from.y == to.y {
 	    if to.x < from.x {
 		point.x -= 1;
 	    } else {
 		point.x += 1;
+	    }
+	} else {
+	    // We are assuming these are 45deg, infinite loop if not...
+	    if to.x < from.x && to.y < from.y {
+		point.x -= 1;
+		point.y -= 1;
+	    } else if to.x < from.x && to.y > from.y {
+		point.x -= 1;
+		point.y += 1
+	    } else if to.x > from.x && to.y > from.y {
+		point.x += 1;
+		point.y += 1
+	    } else if to.x > from.x && to.y < from.y {
+		point.x += 1;
+		point.y -= 1
+	    } else {
+		println!("unreachable");
+		std::process::exit(1);
 	    }
 	}
     }
