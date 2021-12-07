@@ -1,8 +1,5 @@
 use std::env;
 use std::fs;
-use std::collections::VecDeque;
-
-const DEBUG_OUTPUT: bool = false;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -19,34 +16,27 @@ fn main() {
         .parse()
         .expect("Could not parse number of days given.");
 
-    // Approach: have a queue which we pop from, that keeps adding more children.
-    // We keep the day number where the first child is born, and keep advancing from there
-    // (0-indexed, so the number we read in works out).
-    let mut queue: VecDeque<u32> = data
+    let initial: Vec<usize> = data
         .lines()
         .next()
         .unwrap()
         .split(",")
         .map(|x| x.parse().unwrap())
-        .collect::<VecDeque<u32>>();
-    if DEBUG_OUTPUT { println!("Initial state: {:?}", queue); }
+        .collect::<Vec<usize>>();
 
-    let mut count = queue.len() as u64;
-    while !queue.is_empty() {
-	if DEBUG_OUTPUT { println!("\nQueue state: {:?}", queue); }
-	let mut day_idx = queue.pop_front().unwrap();
-	if DEBUG_OUTPUT { println!("Processing day idx: {}", day_idx); }
-	while day_idx < sim_days {
-	    if DEBUG_OUTPUT { println!("-- Counting idx: {}", day_idx); }
-	    count += 1;
-	    let offset_idx = day_idx + 9; // Will birth total 9 later
-	    if offset_idx < sim_days {
-		queue.push_back(offset_idx);
-		if DEBUG_OUTPUT { println!("-- Pushing for idx {}: day {}", day_idx, offset_idx); }
-	    }
-	    day_idx += 7;
-	}
+    // Approach: store count of fish in each timing.
+    // After index 0 means birth.
+    let mut timings: [u64; 9] = [0; 9];
+    // Load initial into timings
+    for i in initial {
+	timings[i-1] += 1;
     }
 
-    println!("Part 1 lanternfish count: {}", count);
+    // Note: first day has already been done by above.
+    for _ in 1..sim_days {
+	timings.rotate_left(1);
+	timings[6] += timings[8]; // Add back in parents
+    }
+
+    println!("Lanternfish count: {}", timings.iter().sum::<u64>());
 }
