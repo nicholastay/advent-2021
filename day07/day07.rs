@@ -1,3 +1,4 @@
+use std::cmp;
 use std::env;
 use std::fs;
 
@@ -21,16 +22,38 @@ fn main() {
         .collect();
     input.sort_unstable();
 
+    println!("Part 1 fuel consumed: {}", part1(&input),);
+    println!("");
+    println!("Part 2 fuel consumed: {}", part2(&input),);
+}
+
+fn part1(input: &Vec<i32>) -> i64 {
     // Approach: Use the median, as that would be in the middle of all
     // Choose one of them middle ones if even (as it doesn't matter, moved to each)
     let mid_index = input.len() / 2;
-    let best_pos = input[mid_index];
-    println!("Best position: {}", best_pos);
+    let best_pos = input[mid_index] as i64;
+    println!("Best part 1 position: {}", best_pos);
 
-    println!(
-        "Fuel consumed: {}",
-        input
-            .into_iter()
-            .fold(0, |acc, x| acc + (best_pos - x).abs()),
-    );
+    input
+        .iter()
+        .fold(0, |acc, &x| acc + (best_pos - x as i64).abs())
+}
+
+fn part2(input: &Vec<i32>) -> i64 {
+    // This kinda sucks?
+    let max_pos = *input.iter().max().unwrap();
+    (0..max_pos).fold(i64::MAX, |acc, pos| {
+        cmp::min(
+            acc,
+            input
+                .iter()
+                .fold(0, |acc, &x| acc + triangle_n((pos as i64 - x as i64).abs())),
+        )
+    })
+}
+
+// The new part 2 fuel consumption function is just triangular numbers.
+// i.e. if 11 distance, it is 11 + 10 + 9 ... + 1.
+fn triangle_n(n: i64) -> i64 {
+    n * (n + 1) / 2
 }
