@@ -36,14 +36,14 @@ fn main() {
     let mut p2_count: i32 = 0;
 
     for line in data.lines() {
-	let mut splits = line.split(" -> ");
+        let mut splits = line.split(" -> ");
 
-	let from: Point = str_to_point(splits.next().unwrap());
-	let to: Point = str_to_point(splits.next().unwrap());
+        let from: Point = str_to_point(splits.next().unwrap());
+        let to: Point = str_to_point(splits.next().unwrap());
 
-	println!("Marking from {:?} to {:?}", from, to);
-	mark_line(true, &mut p1_matrix, &mut p1_count, &from, &to);
-	mark_line(false, &mut p2_matrix, &mut p2_count, &from, &to);
+        println!("Marking from {:?} to {:?}", from, to);
+        mark_line(true, &mut p1_matrix, &mut p1_count, &from, &to);
+        mark_line(false, &mut p2_matrix, &mut p2_count, &from, &to);
     }
 
     println!("");
@@ -54,68 +54,68 @@ fn main() {
 fn str_to_point(coords: &str) -> Point {
     let mut points = coords.split(",");
     Point {
-	x: points.next().unwrap().parse().unwrap(),
-	y: points.next().unwrap().parse().unwrap(),
+        x: points.next().unwrap().parse().unwrap(),
+        y: points.next().unwrap().parse().unwrap(),
     }
 }
 
 fn mark_line(part_one: bool, mat: &mut Matrix, count: &mut i32, from: &Point, to: &Point) {
     // Only support horizontal and vertical lines for Part 1.
     if part_one && from.x != to.x && from.y != to.y {
-	//println!("WARN: Non horizontal and non vertical lines are not supported in Part 1. Skipping {:?} -> {:?}.", from, to);
-	return
+        //println!("WARN: Non horizontal and non vertical lines are not supported in Part 1. Skipping {:?} -> {:?}.", from, to);
+        return
     }
 
     let mut point: Point = *from;
 
     loop {
-	//println!("-- Marking {:?}", point);
-	let mat_state: &mut PointState = &mut mat[point.x][point.y];
-	if *mat_state == PointState::Unmarked {
-	    // Now it has one line
-	    *mat_state = PointState::One;
-	} else if *mat_state == PointState::One {
-	    // Count it, it has now been >=2 lines crossed
-	    *count += 1;
-	    *mat_state = PointState::Marked;
-	}
-	// Otherwise, if marked, don't do any counting/changing
+        //println!("-- Marking {:?}", point);
+        let mat_state: &mut PointState = &mut mat[point.x][point.y];
+        if *mat_state == PointState::Unmarked {
+            // Now it has one line
+            *mat_state = PointState::One;
+        } else if *mat_state == PointState::One {
+            // Count it, it has now been >=2 lines crossed
+            *count += 1;
+            *mat_state = PointState::Marked;
+        }
+        // Otherwise, if marked, don't do any counting/changing
 
-	// Count the last one
-	if point == *to {
-	    break;
-	}
+        // Count the last one
+        if point == *to {
+            break;
+        }
 
-	if from.x == to.x {
-	    if to.y < from.y {
-		point.y -= 1;
-	    } else {
-		point.y += 1;
-	    }
-	} else if from.y == to.y {
-	    if to.x < from.x {
-		point.x -= 1;
-	    } else {
-		point.x += 1;
-	    }
-	} else {
-	    // We are assuming these are 45deg, infinite loop if not...
-	    if to.x < from.x && to.y < from.y {
-		point.x -= 1;
-		point.y -= 1;
-	    } else if to.x < from.x && to.y > from.y {
-		point.x -= 1;
-		point.y += 1
-	    } else if to.x > from.x && to.y > from.y {
-		point.x += 1;
-		point.y += 1
-	    } else if to.x > from.x && to.y < from.y {
-		point.x += 1;
-		point.y -= 1
-	    } else {
-		println!("unreachable");
-		std::process::exit(1);
-	    }
-	}
+        if from.x == to.x {
+            if to.y < from.y {
+                point.y -= 1;
+            } else {
+                point.y += 1;
+            }
+        } else if from.y == to.y {
+            if to.x < from.x {
+                point.x -= 1;
+            } else {
+                point.x += 1;
+            }
+        } else {
+            // We are assuming these are 45deg, infinite loop if not...
+            if to.x < from.x && to.y < from.y {
+                point.x -= 1;
+                point.y -= 1;
+            } else if to.x < from.x && to.y > from.y {
+                point.x -= 1;
+                point.y += 1
+            } else if to.x > from.x && to.y > from.y {
+                point.x += 1;
+                point.y += 1
+            } else if to.x > from.x && to.y < from.y {
+                point.x += 1;
+                point.y -= 1
+            } else {
+                println!("unreachable");
+                std::process::exit(1);
+            }
+        }
     }
 }

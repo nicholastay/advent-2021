@@ -29,13 +29,13 @@ fn main() {
     let mut timings: [u64; 9] = [0; 9];
     // Load initial into timings
     for i in initial {
-	timings[i-1] += 1;
+        timings[i-1] += 1;
     }
 
     // Note: first day has already been done by above.
     for _ in 1..sim_days {
-	timings.rotate_left(1);
-	timings[6] += timings[8]; // Add back in parents
+        timings.rotate_left(1);
+        timings[6] += timings[8]; // Add back in parents
     }
 
     println!("Lanternfish count: {}", timings.iter().sum::<u64>());

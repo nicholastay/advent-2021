@@ -10,14 +10,14 @@ fn part1(data: &str, gamma_rate: &mut i32, epsilon_rate: &mut i32) {
 
     let mut len: usize = 0;
     for line in data.lines() {
-	len += 1;
-	let bits = line.chars();
+        len += 1;
+        let bits = line.chars();
 
-	for (i, bit) in bits.enumerate() {
-	    if bit == '1' {
-		occ[i] += 1;
-	    }
-	}
+        for (i, bit) in bits.enumerate() {
+            if bit == '1' {
+                occ[i] += 1;
+            }
+        }
     }
 
     //println!("{} / {:#?}", len, occ);
@@ -25,21 +25,21 @@ fn part1(data: &str, gamma_rate: &mut i32, epsilon_rate: &mut i32) {
     // occ stores the number of 1's in that bit position
     // Store as decimal on the fly.
     for ones in occ.iter() {
-	*gamma_rate <<= 1;
-	*epsilon_rate <<= 1;
-	
-	let add_to: &mut i32;
-	if ones > &(len - ones) {
-	    // There are more ones than zeroes
-	    // So add to the gamma rate
-	    add_to = &mut *gamma_rate;
-	} else {
-	    // There are more zeroes than ones
-	    // So this adds to the epsilon rate
-	    add_to = &mut *epsilon_rate;
-	}
+        *gamma_rate <<= 1;
+        *epsilon_rate <<= 1;
 
-	*add_to += 1;
+        let add_to: &mut i32;
+        if ones > &(len - ones) {
+            // There are more ones than zeroes
+            // So add to the gamma rate
+            add_to = &mut *gamma_rate;
+        } else {
+            // There are more zeroes than ones
+            // So this adds to the epsilon rate
+            add_to = &mut *epsilon_rate;
+        }
+
+        *add_to += 1;
     }
 }
 
@@ -52,95 +52,95 @@ fn part2(data: &str, oxygen_gen: &mut i32, co2_scrub: &mut i32) {
     // This kinda sucks, but whatever.
     let mut gamma_candidates = data.lines().collect::<Vec<_>>(); // Oxygen gen
     for i in 0..binary_len {
-	//println!("doing pos {}", i);
+        //println!("doing pos {}", i);
 
-	let gamma_bit: i32;
-	let mut ones: usize = 0;
-	for candidate in &gamma_candidates {
-	    let cand_char = candidate.chars().nth(i).unwrap();
-	    if cand_char == '1' {
-		ones += 1
-	    }
-	}
-	if ones >= &gamma_candidates.len() - ones {
-	    gamma_bit = 1;
-	} else {
-	    gamma_bit = 0;
+        let gamma_bit: i32;
+        let mut ones: usize = 0;
+        for candidate in &gamma_candidates {
+            let cand_char = candidate.chars().nth(i).unwrap();
+            if cand_char == '1' {
+                ones += 1
+            }
+        }
+        if ones >= &gamma_candidates.len() - ones {
+            gamma_bit = 1;
+        } else {
+            gamma_bit = 0;
 
-	}
+        }
 
-	//println!("gamma bit {}", gamma_bit);
+        //println!("gamma bit {}", gamma_bit);
 
-	let mut new_gamma_candidates: Vec<&str> = Vec::new();
-	for candidate in &gamma_candidates {
-	    let cand_char = candidate.chars().nth(i).unwrap();
-	    let cand_bit = cand_char.to_digit(10).unwrap() as i32;
-	    //println!("cand bit {}", cand_bit);
+        let mut new_gamma_candidates: Vec<&str> = Vec::new();
+        for candidate in &gamma_candidates {
+            let cand_char = candidate.chars().nth(i).unwrap();
+            let cand_bit = cand_char.to_digit(10).unwrap() as i32;
+            //println!("cand bit {}", cand_bit);
 
-	    if cand_bit != gamma_bit {
-		//println!("gamma removing {}", candidate);
-	    } else {
-		new_gamma_candidates.push(candidate);
-		//println!("gamma keeping {}", candidate);
-	    }
-	}
+            if cand_bit != gamma_bit {
+                //println!("gamma removing {}", candidate);
+            } else {
+                new_gamma_candidates.push(candidate);
+                //println!("gamma keeping {}", candidate);
+            }
+        }
 
-	gamma_candidates = new_gamma_candidates;
-	//println!("new gamma cands: {:#?}", gamma_candidates);
+        gamma_candidates = new_gamma_candidates;
+        //println!("new gamma cands: {:#?}", gamma_candidates);
 
-	if gamma_candidates.len() == 1 {
-	    break;
-	}
-	
-	//println!("------");
+        if gamma_candidates.len() == 1 {
+            break;
+        }
+
+        //println!("------");
     }
 
     //println!("----------------------------------------");
 
     let mut epsilon_candidates = data.lines().collect::<Vec<_>>(); // CO2 scrub
     for i in 0..binary_len {
-	//println!("doing pos {}", i);
+        //println!("doing pos {}", i);
 
-	let epsilon_bit: i32;
-	let mut ones: usize = 0;
-	for candidate in &epsilon_candidates {
-	    let cand_char = candidate.chars().nth(i).unwrap();
-	    if cand_char == '1' {
-		ones += 1
-	    }
-	}
-	if ones >= &epsilon_candidates.len() - ones {
-	    epsilon_bit = 0;
-	} else {
-	    epsilon_bit = 1;
+        let epsilon_bit: i32;
+        let mut ones: usize = 0;
+        for candidate in &epsilon_candidates {
+            let cand_char = candidate.chars().nth(i).unwrap();
+            if cand_char == '1' {
+                ones += 1
+            }
+        }
+        if ones >= &epsilon_candidates.len() - ones {
+            epsilon_bit = 0;
+        } else {
+            epsilon_bit = 1;
 
-	}
+        }
 
-	//println!("epsilon bit {}", epsilon_bit);
+        //println!("epsilon bit {}", epsilon_bit);
 
-	let mut new_epsilon_candidates: Vec<&str> = Vec::new();
-	for candidate in &epsilon_candidates {
-	    let cand_char = candidate.chars().nth(i).unwrap();
-	    let cand_bit = cand_char.to_digit(10).unwrap() as i32;
-	    //println!("cand bit {}", cand_bit);
+        let mut new_epsilon_candidates: Vec<&str> = Vec::new();
+        for candidate in &epsilon_candidates {
+            let cand_char = candidate.chars().nth(i).unwrap();
+            let cand_bit = cand_char.to_digit(10).unwrap() as i32;
+            //println!("cand bit {}", cand_bit);
 
-	    if cand_bit != epsilon_bit {
-		//println!("epsilon removing {}", candidate);
-	    } else {
-		new_epsilon_candidates.push(candidate);
-		//println!("epsilon keeping {}", candidate);
-	    }
-	}
+            if cand_bit != epsilon_bit {
+                //println!("epsilon removing {}", candidate);
+            } else {
+                new_epsilon_candidates.push(candidate);
+                //println!("epsilon keeping {}", candidate);
+            }
+        }
 
-	epsilon_candidates = new_epsilon_candidates;
-	
-	//println!("new epsilon cands: {:#?}", epsilon_candidates);
+        epsilon_candidates = new_epsilon_candidates;
 
-	if epsilon_candidates.len() == 1 {
-	    break;
-	}
+        //println!("new epsilon cands: {:#?}", epsilon_candidates);
 
-	//println!("------");
+        if epsilon_candidates.len() == 1 {
+            break;
+        }
+
+        //println!("------");
     }
 
     *oxygen_gen = i32::from_str_radix(gamma_candidates[0], 2).unwrap();

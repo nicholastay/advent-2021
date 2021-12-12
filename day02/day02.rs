@@ -3,20 +3,20 @@ use std::env;
 
 fn part1(data: &str, horiz: &mut i32, depth: &mut i32) {
     for line in data.lines() {
-	let mut tokens = line.split(" ");
-	
-	let direction = tokens.next().unwrap();
-	let val = tokens.next().unwrap().parse::<i32>().unwrap();
+        let mut tokens = line.split(" ");
 
-	match direction {
-	    "forward" => *horiz += val,
-	    "down" => *depth += val,
-	    "up" => *depth -= val,
-	    _ => {
-		println!("unreachable, panic");
-	        std::process::exit(1);
-	    },
-	}
+        let direction = tokens.next().unwrap();
+        let val = tokens.next().unwrap().parse::<i32>().unwrap();
+
+        match direction {
+            "forward" => *horiz += val,
+            "down" => *depth += val,
+            "up" => *depth -= val,
+            _ => {
+                println!("unreachable, panic");
+                std::process::exit(1);
+            },
+        }
     }
 }
 
@@ -24,23 +24,23 @@ fn part2(data: &str, horiz: &mut i32, depth: &mut i32) {
     let mut aim: i32 = 0;
 
     for line in data.lines() {
-	let mut tokens = line.split(" ");
-	
-	let direction = tokens.next().unwrap();
-	let val = tokens.next().unwrap().parse::<i32>().unwrap();
+        let mut tokens = line.split(" ");
 
-	match direction {
-	    "forward" => {
-		*horiz += val;
-		*depth += aim * val;
-	    },
-	    "down" => aim += val,
-	    "up" => aim -= val,
-	    _ => {
-		println!("unreachable, panic");
-	        std::process::exit(1);
-	    },
-	}
+        let direction = tokens.next().unwrap();
+        let val = tokens.next().unwrap().parse::<i32>().unwrap();
+
+        match direction {
+            "forward" => {
+                *horiz += val;
+                *depth += aim * val;
+            },
+            "down" => aim += val,
+            "up" => aim -= val,
+            _ => {
+                println!("unreachable, panic");
+                std::process::exit(1);
+            },
+        }
     }
 }
 
