@@ -1,5 +1,5 @@
-use std::fs;
 use std::env;
+use std::fs;
 
 fn part1(data: &str, horiz: &mut i32, depth: &mut i32) {
     for line in data.lines() {
@@ -15,7 +15,7 @@ fn part1(data: &str, horiz: &mut i32, depth: &mut i32) {
             _ => {
                 println!("unreachable, panic");
                 std::process::exit(1);
-            },
+            }
         }
     }
 }
@@ -33,13 +33,13 @@ fn part2(data: &str, horiz: &mut i32, depth: &mut i32) {
             "forward" => {
                 *horiz += val;
                 *depth += aim * val;
-            },
+            }
             "down" => aim += val,
             "up" => aim -= val,
             _ => {
                 println!("unreachable, panic");
                 std::process::exit(1);
-            },
+            }
         }
     }
 }

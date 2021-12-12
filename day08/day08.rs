@@ -3,8 +3,7 @@ use std::fs;
 
 fn part1(data: &str) -> usize {
     // Part 1: only care about 1/4/7/8
-    data
-        .lines()
+    data.lines()
         .flat_map(|x| x.split(" | ").nth(1).unwrap().split(" "))
         .filter(|x| {
             let l = x.len();
@@ -14,8 +13,7 @@ fn part1(data: &str) -> usize {
 }
 
 fn part2(data: &str) -> usize {
-    data
-        .lines()
+    data.lines()
         .map(|x| {
             let mut s = x.split(" | ");
             let signals = s.next().unwrap().split(" ").collect::<Vec<&str>>();
@@ -34,10 +32,7 @@ fn part2(data: &str) -> usize {
                 .filter(|x| x.len() == 6)
                 .collect::<Vec<&&str>>();
             // The number "2" must be these chars
-            let one = signals
-                .iter()
-                .find(|x| x.len() == 2)
-                .unwrap();
+            let one = signals.iter().find(|x| x.len() == 2).unwrap();
 
             // Out of the 5-display segment numbers, only '3' can have the two segments as in '2'
             let three = fives
@@ -49,11 +44,7 @@ fn part2(data: &str) -> usize {
             // i.e. '5' and '3' will overlap with 6 or 9 fully, but 3 won't
             let two = fives
                 .iter()
-                .find(|x| {
-                    !sixes
-                        .iter()
-                        .any(|s| x.chars().all(|c| s.contains(c)))
-                })
+                .find(|x| !sixes.iter().any(|s| x.chars().all(|c| s.contains(c))))
                 .unwrap();
 
             // Five is then NOT three or two
@@ -72,10 +63,7 @@ fn part2(data: &str) -> usize {
                 .find(|x| one.chars().all(|c| x.contains(c)))
                 .unwrap();
 
-            let six = sixes
-                .iter()
-                .find(|&x| x != zero && x != nine)
-                .unwrap();
+            let six = sixes.iter().find(|&x| x != zero && x != nine).unwrap();
 
             // I'm too tired to try and find the right data structure.
             // This should be good enough(TM) for now

@@ -6,7 +6,7 @@ fn part1(data: &str, gamma_rate: &mut i32, epsilon_rate: &mut i32) {
     *epsilon_rate = 0;
 
     let binary_len = data.lines().next().unwrap().len();
-    let mut occ: Vec<usize> = vec![0;binary_len];
+    let mut occ: Vec<usize> = vec![0; binary_len];
 
     let mut len: usize = 0;
     for line in data.lines() {
@@ -66,7 +66,6 @@ fn part2(data: &str, oxygen_gen: &mut i32, co2_scrub: &mut i32) {
             gamma_bit = 1;
         } else {
             gamma_bit = 0;
-
         }
 
         //println!("gamma bit {}", gamma_bit);
@@ -113,7 +112,6 @@ fn part2(data: &str, oxygen_gen: &mut i32, co2_scrub: &mut i32) {
             epsilon_bit = 0;
         } else {
             epsilon_bit = 1;
-
         }
 
         //println!("epsilon bit {}", epsilon_bit);

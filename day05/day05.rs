@@ -63,7 +63,7 @@ fn mark_line(part_one: bool, mat: &mut Matrix, count: &mut i32, from: &Point, to
     // Only support horizontal and vertical lines for Part 1.
     if part_one && from.x != to.x && from.y != to.y {
         //println!("WARN: Non horizontal and non vertical lines are not supported in Part 1. Skipping {:?} -> {:?}.", from, to);
-        return
+        return;
     }
 
     let mut point: Point = *from;

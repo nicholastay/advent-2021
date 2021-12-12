@@ -1,6 +1,6 @@
+use std::collections::VecDeque;
 use std::env;
 use std::fs;
-use std::collections::VecDeque;
 
 type Board = [[i32; 5]; 5];
 
@@ -31,7 +31,12 @@ fn main() {
     let mut lines = data.lines();
 
     // Read bingo numbers into a vec
-    let mut numbers: VecDeque<i32> = lines.next().unwrap().split(",").map(|i| i.parse::<i32>().unwrap()).collect();
+    let mut numbers: VecDeque<i32> = lines
+        .next()
+        .unwrap()
+        .split(",")
+        .map(|i| i.parse::<i32>().unwrap())
+        .collect();
     //println!("{:#?}", numbers);
 
     // Parse bingo boards
@@ -82,9 +87,9 @@ fn main() {
             // Check rows
             let mut found: bool = true;
             for row in board {
-                found = row.iter().fold(true, |accum, val| {
-                    accum && picked.contains(val)
-                });
+                found = row
+                    .iter()
+                    .fold(true, |accum, val| accum && picked.contains(val));
 
                 if found {
                     break;
@@ -108,9 +113,9 @@ fn main() {
             for col_i in 0..5 {
                 let col = board.map(|row| row[col_i]);
 
-                found = col.iter().fold(true, |accum, val| {
-                    accum && picked.contains(val)
-                });
+                found = col
+                    .iter()
+                    .fold(true, |accum, val| accum && picked.contains(val));
 
                 if found {
                     break;
@@ -153,7 +158,7 @@ fn main() {
     println!("-- Part 1 --");
     println!("First winning board:");
     println!("{:#?}", first_winner.unwrap());
-    
+
     // Calculate winning score
     // println!("Sum of unmarked: {}", unmarked_sum);
     println!("Final score: {}", first_score);
@@ -164,7 +169,7 @@ fn main() {
 
     println!("Last winning board:");
     println!("{:#?}", last_winner.unwrap());
-    
+
     // Calculate winning score
     // println!("Sum of unmarked: {}", unmarked_sum);
     println!("Final score: {}", last_score);

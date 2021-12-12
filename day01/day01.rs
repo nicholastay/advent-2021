@@ -4,7 +4,7 @@ use std::fs;
 fn part1(data: &str) -> i32 {
     let mut it = data.lines();
     let mut prev: i32 = it.next().unwrap().parse::<i32>().unwrap();
-    
+
     let mut increases: i32 = 0;
     for line in it {
         let new = line.parse::<i32>().unwrap();
