@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
 
-const STEPS: usize = 100;
+const STEPS_PART1: usize = 100;
 const HEIGHT: usize = 10;
 const WIDTH: usize = 10;
 
@@ -80,8 +80,10 @@ fn main() {
         })
         .collect::<Map>();
 
+    let mut i: usize = 0;
     let mut flash_count: u32 = 0;
-    for _ in 0..STEPS {
+    let mut flash_after: u32 = 0;
+    loop {
         for r in 0..HEIGHT {
             for c in 0..WIDTH {
                 map[r][c].value += 1;
@@ -91,9 +93,17 @@ fn main() {
         for r in 0..HEIGHT {
             for c in 0..WIDTH {
                 if map[r][c].value > 9 {
-                    flash_point(&mut map, (r, c), &mut flash_count);
+                    if i < STEPS_PART1 {
+                        flash_point(&mut map, (r, c), &mut flash_count);
+                    } else {
+                        flash_point(&mut map, (r, c), &mut flash_after);
+                    }
                 }
             }
+        }
+
+        if map.iter().flatten().map(|p| p.flashed).fold(true, |acc, x| acc && x) {
+            break;
         }
 
         for r in 0..HEIGHT {
@@ -101,7 +111,10 @@ fn main() {
                 map[r][c].flashed = false;
             }
         }
+
+        i += 1;
     }
 
     println!("Part 1 flash count: {}", flash_count);
+    println!("Part 2 all flash step: {}", i+1);
 }
