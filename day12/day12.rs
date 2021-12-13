@@ -36,6 +36,7 @@ fn main() {
 
     // Go through the paths and see if it visits all small caves
     println!("Part 1 path count: {}", scan_part1_paths(&map, 1, &Vec::new()));
+    println!("Part 2 path count: {}", scan_part2_paths(&map, 1, &Vec::new(), false));
 }
 
 fn string_val(s: &str) -> usize {
@@ -65,12 +66,7 @@ fn val_is_big(x: usize) -> bool {
 
 fn scan_part1_paths(map: &Map, curr: usize, visited: &Vec<usize>) -> usize {
     if curr == 2 {
-        if visited.into_iter().any(|x| val_is_small(*x)) {
-            // println!("found {} -- visited: {:#?}", curr, visited);
-            return 1;
-        } else {
-            return 0;
-        }
+        return 1;
     }
 
     // println!("scanning {} -- visited: {:#?}", curr, visited);
@@ -88,5 +84,31 @@ fn scan_part1_paths(map: &Map, curr: usize, visited: &Vec<usize>) -> usize {
         .map(|(i, _)| i)
         .filter(|i| !visited.contains(i))
         .map(|i| scan_part1_paths(map, i, &new_visited))
+        .sum::<usize>()
+}
+
+fn scan_part2_paths(map: &Map, curr: usize, visited: &Vec<usize>, twiced: bool) -> usize {
+    if curr == 2 {
+        return 1;
+    }
+
+    let mut new_twiced: bool = twiced;
+    let mut new_visited: Vec<usize> = visited.clone();
+    if val_is_small(curr) {
+        if visited.contains(&curr) {
+            new_twiced = true;
+        } else {
+            new_visited.push(curr);
+        }
+    }
+
+    map[curr]
+        .iter()
+        .enumerate()
+        .filter(|&(_, conn)| *conn)
+        .map(|(i, _)| i)
+        .filter(|i| !new_twiced || !visited.contains(i))
+        .filter(|&i| i != 1)
+        .map(|i| scan_part2_paths(map, i, &new_visited, new_twiced))
         .sum::<usize>()
 }
