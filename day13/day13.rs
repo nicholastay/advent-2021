@@ -3,6 +3,8 @@ use std::fs;
 
 const WIDTH: usize = 1500;
 const HEIGHT: usize = 1500;
+const VIEW_WIDTH: usize = 50;
+const VIEW_HEIGHT: usize = 10;
 
 type Map = [[bool; WIDTH]; HEIGHT];
 
@@ -31,6 +33,7 @@ fn main() {
         map[y][x] = true;
     }
 
+    let mut first: bool = true;
     for line in lines.by_ref() {
         let is_x: bool = line.chars().nth(11).unwrap() == 'x';
         let i: usize = line[13..].parse().unwrap();
@@ -41,17 +44,24 @@ fn main() {
         }
 
         // Part 1
-        break;
+        if first {
+            println!(
+                "Part 1 visible dots: {}",
+                map
+                    .iter()
+                    .flatten()
+                    .filter(|&x| *x)
+                    .count()
+            );
+            first = false;
+        }
     }
 
-    println!(
-        "{}",
-        map
-            .iter()
-            .flatten()
-            .filter(|&x| *x)
-            .count()
-    );
+    // Part 2
+    // Width/height viewport restricted because folded already and it' hard to see/slow to print
+    println!("");
+    println!("Part 2 {}x{} paper view:", VIEW_WIDTH, VIEW_HEIGHT);
+    display_map(&map, VIEW_WIDTH, VIEW_HEIGHT);
 }
 
 fn fold_x(map: &mut Map, x: usize) {
@@ -89,4 +99,13 @@ fn reflect_point(v: usize, rp: usize) -> usize {
     let res: i32 = rp as i32 + dir * (rp as i32 - v as i32).abs();
     assert!(res >= 0);
     res as usize
+}
+
+fn display_map(map: &Map, view_x: usize, view_y: usize) {
+    for r in 0..view_y {
+        for c in 0..view_x {
+            print!("{}", if map[r][c] { "#" } else { "." });
+        }
+        print!("\n");
+    }
 }
