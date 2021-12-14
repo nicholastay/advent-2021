@@ -16,61 +16,57 @@ fn main() {
     let data = String::from_utf8_lossy(&file);
     let mut lines = data.lines();
 
-    let mut polymer: Vec<char> = lines.next().unwrap().chars().collect();
-    let mut occ = HashMap::new();
-    for &c in &polymer {
-        *occ.entry(c).or_insert(1) += 1;
+    let p = lines.next().unwrap();
+    let mut polymer_pairs = HashMap::new();
+    let mut polymer_occ = HashMap::new();
+    for c in p.chars() {
+        *polymer_occ.entry(c).or_insert(0u64) += 1u64;
+    }
+    for pp in p.chars().collect::<Vec<char>>().windows(2) {
+        *polymer_pairs
+            .entry([pp[0], pp[1]])
+            .or_insert(0u64) += 1u64;
     }
 
     let mut rules = HashMap::new();
     lines.next();
     for line in lines.by_ref() {
+        let mut cc = line.chars();
         rules.insert(
-            line[..2].to_string(),
-            line.chars().nth(6).unwrap(),
+            [cc.next().unwrap(), cc.next().unwrap()],
+            cc.nth(4).unwrap(),
         );
     }
 
-    // println!("{:#?}", polymer);
-    // println!("{:#?}", rules);
-    // polymer.windows(2).for_each(|x| println!("{:#?}", x));
-
     for _ in 0..times {
-        let mut first = true; // This is so weird but I can't be stuffed thinking of a better way.
-        polymer = polymer
-            .windows(2)
-            .flat_map(|pair| {
-                let s = pair.iter().collect::<String>();
-                match rules.get(&s) {
-                    Some(c) => {
-                        *occ.entry(*c).or_insert(1) += 1;
-                        if first {
-                            first = false;
-                            Vec::from([pair[0], *c, pair[1]])
-                        } else {
-                            Vec::from([*c, pair[1]])
-                        }
-                    },
-                    None => { first = false; Vec::from(pair) },
+        let mut new_pairs = polymer_pairs.clone();
+        rules
+            .iter()
+            .for_each(|(from, to_char)| {
+                if polymer_pairs.contains_key(from) {
+                    let count = *polymer_pairs.get(from).unwrap();
+                    let to1 = [from[0], *to_char];
+                    let to2 = [*to_char, from[1]];
+                    *new_pairs.get_mut(from).unwrap() -= count;
+                    *new_pairs.entry(to1).or_insert(0u64) += count;
+                    *new_pairs.entry(to2).or_insert(0u64) += count;
+                    *polymer_occ.entry(*to_char).or_insert(0u64) += count;
                 }
-            })
-            .collect();
+            });
+        polymer_pairs = new_pairs;
     }
 
-    println!("Polymer: {}", polymer.into_iter().collect::<String>());
-    // println!("Occurrences: {:#?}", occ);
-
-    let most_common = occ
+    let most_common = polymer_occ
         .iter()
         .max_by_key(|&(_, v)| v)
         .unwrap();
-    println!("Most common: {} @ {}x", most_common.0, most_common.1);
+    println!("Most common: {:#?} @ {}x", most_common.0, most_common.1);
 
-    let least_common = occ
+    let least_common = polymer_occ
         .iter()
         .min_by_key(|&(_, v)| v)
         .unwrap();
-    println!("Least common: {} @ {}x", least_common.0, least_common.1);
+    println!("Least common: {:#?} @ {}x", least_common.0, least_common.1);
 
     println!("Score: {}", most_common.1 - least_common.1);
 }
