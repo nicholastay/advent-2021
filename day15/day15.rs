@@ -23,16 +23,40 @@ fn main() {
 
     let n = data.lines().next().unwrap().len();
     let mut structure = vec![vec![0; n]; n];
-    let mut i = 0;
-    for line in data.lines() {
-        let mut j = 0;
-        for c in line.chars() {
+    for (i, line) in data.lines().enumerate() {
+        for (j, c) in line.chars().enumerate() {
             structure[i][j] = c.to_digit(10).unwrap();
-            j += 1;
         }
-        i += 1;
     }
 
+    let part1_graph = input_to_graph(&structure);
+    println!("Part 1: {}", dijkstra(&part1_graph));
+
+    // Build part 2 structure (reuse/replace existing)
+    // First extend the first n lines
+    for i in 0..n {
+        for j in 0..5*n {
+            let mut p = structure[i][j] + 1;
+            if p > 9 { p -= 9; }
+            structure[i].push(p);
+        }
+    }
+    // Then extend the rows by copying down
+    for i in n..5*n {
+        let p = structure[i-n].iter().map(|x| {
+            let mut xx = x + 1;
+            if xx > 9 { xx -= 9; }
+            xx
+        }).collect::<Vec<u32>>();
+        structure.push(p);
+    }
+
+    let part2_graph = input_to_graph(&structure);
+    println!("Part 2: {}", dijkstra(&part2_graph));
+}
+
+fn input_to_graph(structure: &Vec<Vec<u32>>) -> Graph {
+    let n = structure.len();
     let mut graph: Graph = vec![Vec::new(); n*n];
     for i in 0..n {
         for j in 0..n {
@@ -56,10 +80,10 @@ fn main() {
         }
     }
 
-    dijkstra(&graph);
+    graph
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Eq, PartialEq)]
 struct QueueVertex {
     i: usize,
     d: u32,
@@ -78,7 +102,7 @@ impl PartialOrd for QueueVertex {
     }
 }
 
-fn dijkstra(graph: &Graph) {
+fn dijkstra(graph: &Graph) -> u32 {
     let n = graph.len();
     let mut dist = vec![u32::MAX; n];
     dist[0] = 0;
@@ -106,5 +130,5 @@ fn dijkstra(graph: &Graph) {
         }
     }
 
-    println!("{}", dist[n-1]);
+    dist[n-1]
 }
