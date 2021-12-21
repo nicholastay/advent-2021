@@ -5,8 +5,8 @@ use std::fs;
 // FIXME: There HAS to be a better way to do this problem (with brain and maths)
 const BF_DX_MIN: i32 = 1;
 const BF_DX_MAX: i32 = 500;
-const BF_DY_MIN: i32 = 1;
-const BF_DY_MAX: i32 = 500;
+const BF_DY_MIN: i32 = -250; // >0 for part1 since trick shot. <0 possible for enumerating.
+const BF_DY_MAX: i32 = 250;
 const BF_STEPS_MAX: i32 = 200;
 
 struct Rect {
@@ -42,12 +42,16 @@ fn main() {
 
     let mut best_vel = None;
     let mut best_y = i32::min_value();
+    let mut vels_count = 0;
     for dx in BF_DX_MIN..BF_DX_MAX+1 {
         for dy in BF_DY_MIN..BF_DY_MAX+1 {
             let run = simulate_run(dx, dy, &area);
-            if run.is_some() && run.unwrap() > best_y {
-                best_y = run.unwrap();
-                best_vel = Some((dx, dy));
+            if run.is_some() {
+                vels_count += 1;
+                if run.unwrap() > best_y {
+                    best_y = run.unwrap();
+                    best_vel = Some((dx, dy));
+                }
             }
         }
     }
@@ -56,6 +60,7 @@ fn main() {
         println!("No answer found in bound.");
     } else {
         println!("Best velocity: {:?}; achieves best y={}", best_vel.unwrap(), best_y);
+        println!("Distinct initial velocities: {}", vels_count);
     }
 }
 
