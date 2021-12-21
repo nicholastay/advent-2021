@@ -19,10 +19,10 @@ fn main() {
         .flat_map(hex_digit_to_bitarr);
 
     let mut version_total = 0;
-    decode_packet(&mut bits, &mut version_total);
+    let ans = decode_packet(&mut bits, &mut version_total);
 
-    println!("==============");
     println!("version total: {}", version_total);
+    println!("transmission: {}", ans);
 }
 
 fn hex_digit_to_bitarr(i: u32) -> [bool; 4] {
@@ -34,49 +34,58 @@ fn hex_digit_to_bitarr(i: u32) -> [bool; 4] {
     ]
 }
 
-fn read_bits(bits: &mut impl Iterator<Item=bool>, n: usize) -> u32 {
+fn read_bits(bits: &mut impl Iterator<Item=bool>, n: usize) -> u64 {
     bits.take(n)
         .fold(0, |acc, x| (acc << 1) + (if x { 1 } else { 0 }))
 }
 
-fn decode_packet(bits: &mut impl Iterator<Item=bool>, version_total: &mut u32) {
-    println!("-- decode --");
+fn decode_packet(bits: &mut impl Iterator<Item=bool>, version_total: &mut u64) -> u64 {
     let version = read_bits(bits, 3);
-    println!("version: {}", version);
     *version_total += version;
 
     let packet_type = read_bits(bits, 3);
-    println!("type: {}", packet_type);
     if packet_type == 4 {
-        // TODO: do something with this?
-        let x = decode_literal(bits);
-        println!("literal: {}", x);
+        decode_literal(bits)
     } else {
+        let accum_fn = match packet_type {
+            0 => |acc: u64, x: u64| acc + x,
+            1 => |acc: u64, x: u64| acc * x,
+            2 => u64::min,
+            3 => u64::max,
+            5 => |acc: u64, x: u64| if acc > x { 1 } else { 0 },
+            6 => |acc: u64, x: u64| if acc < x { 1 } else { 0 },
+            7 => |acc: u64, x: u64| if acc == x { 1 } else { 0 },
+            _ => unreachable!(),
+        };
+
         let is_subpacket_type = bits.next().unwrap();
         if is_subpacket_type {
             // Length type ID = 1
             let count = read_bits(bits, 11) as usize;
-            println!("subpacket type 1, count: {}", count);
-            for _ in 0..count {
-                decode_packet(bits, version_total);
+            let mut ans = decode_packet(bits, version_total);
+            for _ in 1..count {
+                ans = accum_fn(ans, decode_packet(bits, version_total));
             }
+            ans
         } else {
             // Length type ID = 0
             let length = read_bits(bits, 15) as usize;
-            println!("subpacket type 0, length: {}", length);
             // TODO: is there a better way to read out this 'x' amount of bits?
             let mut next_bits = bits.take(length)
                 .collect::<Vec<bool>>()
                 .into_iter()
                 .peekable();
+
+            let mut ans = decode_packet(&mut next_bits, version_total);
             while next_bits.peek().is_some() {
-                decode_packet(&mut next_bits, version_total);
+                ans = accum_fn(ans, decode_packet(&mut next_bits, version_total));
             }
+            ans
         }
     }
 }
 
-fn decode_literal(bits: &mut impl Iterator<Item=bool>) -> u32 {
+fn decode_literal(bits: &mut impl Iterator<Item=bool>) -> u64 {
     let mut ans = 0;
     loop {
         let is_last = !bits.next().unwrap();
