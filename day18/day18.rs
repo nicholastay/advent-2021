@@ -22,14 +22,30 @@ fn main() {
 
     let pairs = data
         .lines()
-        .map(parse_pair);
+        .map(parse_pair)
+        .collect::<Vec<Vec<NestVal>>>();
     //println!("{:#?}", pairs.collect::<Vec<Vec<NestVal>>>());
-    let pairs_sum = pairs
-        .reduce(pairs_reduce_add)
-        .unwrap();
-    //println!("{:#?}", pairs_sum);
+    let n = pairs.len();
 
-    println!("Magnitude: {}", pairs_magnitude(pairs_sum));
+    // FIXME: I don't know how to make this elegant like just in part 1 with a reduce
+    // Fighting the borrow checker isn't so much fun after a while...
+    let mut pairs_sum = pairs[0].to_vec();
+    for i in 1..n {
+        pairs_sum = pairs_add(&pairs_sum, &pairs[i]);
+    }
+    println!("Part 1 full sum magnitude: {}", pairs_magnitude(&pairs_sum));
+
+    let mut best_mag = u32::min_value();
+    for i in 0..n {
+        // Not commutative, so must test all the other way
+        for j in 0..n {
+            let mag = pairs_magnitude(&pairs_add(&pairs[i], &pairs[j]));
+            if mag > best_mag {
+                best_mag = mag;
+            }
+        }
+    }
+    println!("Part 2 best magnitude: {}", best_mag);
 }
 
 fn parse_pair(pair: &str) -> Vec<NestVal> {
@@ -68,7 +84,7 @@ fn parse_pairval(chars: &mut Peekable<Chars>, depth: u32, v: &mut Vec<NestVal>) 
     }
 }
 
-fn pairs_reduce_add(p1: Vec<NestVal>, p2: Vec<NestVal>) -> Vec<NestVal> {
+fn pairs_add(p1: &Vec<NestVal>, p2: &Vec<NestVal>) -> Vec<NestVal> {
     // Basic add the 2 first
     let mut v = p1
         .iter()
@@ -125,7 +141,7 @@ fn pairs_reduce_add(p1: Vec<NestVal>, p2: Vec<NestVal>) -> Vec<NestVal> {
     v
 }
 
-fn pairs_magnitude(v: Vec<NestVal>) -> u32 {
+fn pairs_magnitude(v: &Vec<NestVal>) -> u32 {
     // There should be a more sound way to do this?
     let mut vv = v.clone();
     while vv.len() > 1 {
