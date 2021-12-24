@@ -2,17 +2,18 @@ use std::env;
 use std::fs;
 
 // use ODD so theres a midpoint
-const IMAGE_SIZE: usize = 150;
+const IMAGE_SIZE: usize = 250;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 2 {
-        println!("{} <input.txt>", &args[0]);
+    if args.len() < 3 {
+        println!("{} <input.txt> <loops>", &args[0]);
         std::process::exit(1);
     }
 
     let file = fs::read(&args[1]).expect("Could not read input file given.");
+    let loops = args[2].parse::<usize>().unwrap();
     let data = String::from_utf8_lossy(&file);
     let mut lines = data.lines();
 
@@ -40,9 +41,8 @@ fn main() {
         }
     }
 
-    // dump_image(&image);
     let mut back_image;
-    for i in 0..2 { // run twice
+    for i in 0..loops {
         back_image = image.clone();
         for r in 1..IMAGE_SIZE-1 { // 1.. won't work properly if image hits the edge, but oh well
             for c in 1..IMAGE_SIZE-1 {
@@ -71,10 +71,9 @@ fn main() {
                 image[r][IMAGE_SIZE-1] = v;
             }
         }
-        // dump_image(&image);
     }
 
-    println!("Part 1 lit count: {}", image.iter().flatten().filter(|&x| *x).count());
+    println!("{}", image.iter().flatten().filter(|&x| *x).count());
 }
 
 fn sweep_3x3(r: usize, c: usize) -> [(usize, usize); 9] {
